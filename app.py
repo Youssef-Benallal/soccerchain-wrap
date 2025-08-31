@@ -152,11 +152,11 @@ with tab_style:
     st.subheader(f"Playing Style Wheel — {lg} · {y0}/{y0+1}")
     fig = build_style_fig_once(lg, y0)
     # centered badges
-    _, c1,c2,c3,c4,_ = st.columns([1,1,1,1,1,1], gap="medium")
+    _, c1,c2,c3,_ = st.columns([1,1,1,1,1], gap="medium")
     with c1: st.badge("Progression", color="orange")
     with c2: st.badge("Possession", color="green")
     with c3: st.badge("Defence",   color="red")
-    with c4: st.badge("Attacking", color="blue")
+    # with c4: st.badge("Attacking", color="blue")
     st.pyplot(fig)
 
 with tab_seq:
@@ -341,8 +341,7 @@ with tab_seq:
                 st.pyplot(plt.gcf())
 
 
-
-    # ---- cache shot-ending sequences once ----
+    # --------------------------- SEQ TAB 3 (compact, aligned) ---------------------------
     @st.cache_data(show_spinner=False)
     def get_shot_ending_sequences_cached(df):
         return detect_shot_ending_sequences(
@@ -355,69 +354,67 @@ with tab_seq:
             interpolate_operate_on="clean",
         )
 
-    with seq_tab3:
-        st.markdown("#### Unveil Shot Ending Patterns")
+    # with seq_tab3:
+    #     actions = load_actions_once(lg, y0)
+    #     shot_ending_sequences = get_shot_ending_sequences_cached(actions)
 
-        # 1) actions from cache + sequences (cached)
-        actions = load_actions_once(lg, y0)
-        shot_ending_sequences = get_shot_ending_sequences_cached(actions)
+    #     all_teams = sorted(shot_ending_sequences["team_name"].dropna().unique())
+    #     team_name = st.session_state.get("seq_team", (all_teams[0] if all_teams else None))
 
-        # 2) reuse team filter from seq_tab2 (fallback to first)
-        all_teams = sorted(shot_ending_sequences["team_name"].dropna().unique())
-        team_name = st.session_state.get("seq_team", (all_teams[0] if all_teams else None))
+    #     if not all_teams or team_name is None:
+    #         st.info("Select a team in the Sequence Filters.")
+    #     else:
+    #         try:
+    #             c1, c2 = st.columns([1, 1], gap="medium", vertical_alignment="top")
+    #         except TypeError:
+    #             c1, c2 = st.columns([1, 1], gap="medium")
 
-        if not all_teams or team_name is None:
-            st.info("Select a team in the Sequence Filters.")
-        else:
-            # Two columns
-            c1, c2 = st.columns([1, 1], gap="medium")
+    #         # RIGHT: bar chart first
+    #         with c2:
+    #             tbl_sup, fig_sup = plot_top_support_players(
+    #                 shot_ending_sequences,
+    #                 team=team_name,
+    #                 top_n=8,
+    #                 fig_width=8.0,
+    #                 inside_label_size=5,
+    #                 player_fontsize=5,
+    #                 margins=(0.33, 0.97, 0.10, 0.90),  # room for player labels at left
+    #             )
 
-            # RIGHT first -> use its height as target
-            with c2:
-                tbl_sup, fig_sup = plot_top_support_players(
-                    shot_ending_sequences,
-                    team=team_name,
-                    top_n=5,
-                    fig_width=8.0,
-                    inside_label_size=9,
-                    player_fontsize=9,
-                )
+    #         # LEFT: donut with fig-level legend (no title)
+    #         with c1:
+    #             tbl_donut, fig_donut = shot_seq_donut_mpl(
+    #                 shot_ending_sequences,
+    #                 team=team_name,
+    #                 label_pos=0.62,
+    #                 label_size=0,
+    #                 ring_width=0.28,
+    #                 figsize=(3, 3),
+    #                 legend_mode="figure",   # ensures legend doesn't squash the donut
+    #             )
 
-            # LEFT donut
-            with c1:
-                tbl_donut, fig_donut = shot_seq_donut_mpl(
-                    shot_ending_sequences,
-                    team=team_name,
-                    label_pos=0.42,
-                    label_size=11,
-                )
+    #         # ---- uniform height + identical margins ----
+    #         if fig_donut is not None and fig_sup is not None:
+    #             TARGET_H = 2  # ~small row; adjust 2.7–3.2 to taste
 
-            # 3) Align heights & margins so visuals are not déphasés
-            if fig_donut is not None and fig_sup is not None:
-                TARGET_H = 7.6   # adjust 7.2–8.2 if needed
-                TOP = 0.87       # common top margin (0–1)
+    #             for F in (fig_donut, fig_sup):
+    #                 w, h = F.get_size_inches()
+    #                 F.set_size_inches(w * (TARGET_H / max(h, 1e-6)), TARGET_H)
+    #                 F.set_dpi(200)
+    #                 # strip any internal titles so top padding matches
+    #                 try: F.suptitle("")
+    #                 except Exception: pass
+    #                 for ax in F.axes:
+    #                     ax.set_title("")
 
-                for F in (fig_donut, fig_sup):
-                    # same height for both figures
-                    w, h = F.get_size_inches()
-                    F.set_size_inches(w * (TARGET_H / max(h, 1e-6)), TARGET_H)
-                    F.set_dpi(180)
-                    # remove internal titles and unify margins
-                    try: F.suptitle("")
-                    except Exception: pass
-                    for ax in F.axes:
-                        ax.set_title("")
-                    F.subplots_adjust(left=0.08, right=0.98, bottom=0.12, top=TOP)
+    #             with c1:
+    #                 st.pyplot(fig_donut, use_container_width=True)
+    #             with c2:
+    #                 st.pyplot(fig_sup, use_container_width=True)
 
-                with c1:
-                    st.pyplot(fig_donut, use_container_width=True)
-                with c2:
-                    st.pyplot(fig_sup, use_container_width=True)
-            else:
-                # graceful fallback
-                if fig_donut is not None:
-                    st.pyplot(fig_donut, use_container_width=True)
-                if fig_sup is not None:
-                    st.pyplot(fig_sup, use_container_width=True)
+    #         st.markdown("##### Explore Buildup/Shot-Ending Clusters")
+            # ... your clusters UI/plots ...
+
+
 
 
