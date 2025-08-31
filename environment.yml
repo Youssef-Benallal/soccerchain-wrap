@@ -1,0 +1,35 @@
+name: socceraction_
+channels:
+  - conda-forge
+dependencies:
+  - python=3.9
+  - pip
+  - ipykernel
+  - numpy
+  - pandas
+  - matplotlib
+  - seaborn
+  - tqdm
+  - jupyterlab
+  - scikit-learn
+  - scipy
+  - streamlit
+  - networkx
+  - pyarrow
+  - openpyxl
+  - fsspec
+  - requests
+  - xgboost
+  - pandera
+  - pip:
+      - socceraction==1.5.3
+      - soccerdata==1.8.6
+      - mplsoccer==1.4.0
+      - matplotsoccer==0.0.8
+      - beautifulsoup4
+      - selenium
+      - undetected-chromedriver
+      - pre-commit
+      - black
+      - flake8
+      - isort
